@@ -377,7 +377,7 @@ static NSDictionary * AFParametersFromQueryString(NSString *queryString) {
     NSString *fileHash = [MDLMendeleyAPIClient SHA1ForFileAtURL:fileURL];
     NSMutableURLRequest *request= [self requestWithMethod:@"PUT" path:path parameters:@{@"oauth_body_hash" : fileHash ?: @""}];
     request.HTTPBody = [NSData dataWithContentsOfURL:fileURL];
-    [request setValue:[NSString stringWithFormat:@"attachment; filename=\"%@\"", [[fileURL path] lastPathComponent]] forHTTPHeaderField:@"Content-Disposition"];
+    [request setValue:@"attachment; filename=\"article.pdf\"" forHTTPHeaderField:@"Content-Disposition"];
 	
     AFHTTPRequestOperation *operation = [self HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject) {
         [self updateRateLimitRemainingWithOperation:operation];
