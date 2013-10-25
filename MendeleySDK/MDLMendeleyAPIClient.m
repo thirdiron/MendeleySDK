@@ -31,6 +31,8 @@ NSString * const MDLNotificationDidAcquireAccessToken      = @"MDLNotificationDi
 NSString * const MDLNotificationFailedToAcquireAccessToken = @"MDLNotificationFailedToAcquireAccessToken";
 NSString * const MDLNotificationRateLimitExceeded          = @"MDLNotificationRateLimitExceeded";
 
+static NSString * const MDLOAuthTokenKeychainIdentifier    = @"mendeley";
+
 @interface MDLMendeleyAPIClient ()
 
 @property (strong, nonatomic) id applicationLaunchObserver;
@@ -103,10 +105,12 @@ static NSDictionary * AFParametersFromQueryString(NSString *queryString) {
                 [[NSNotificationCenter defaultCenter] removeObserver:_sharedClient.applicationLaunchObserver];
             _sharedClient = nil;
         }
-        if (!_sharedClient)
+        if (!_sharedClient) {
             _sharedClient = [[self alloc] initWithBaseURL:[NSURL URLWithString:MDLMendeleyAPIBaseURLString]
                                                       key:MDLConsumerKey
                                                    secret:MDLConsumerSecret];
+        }
+        
     }
     
     return _sharedClient;
@@ -115,6 +119,32 @@ static NSDictionary * AFParametersFromQueryString(NSString *queryString) {
 + (MDLMendeleyAPIClient *)sharedClient
 {
     return [self sharedClientReset:NO];
+}
+
+- (AFOAuth1Token *)accessToken
+{
+    AFOAuth1Token *accessToken = [super accessToken];
+    
+    if (!accessToken) {
+        accessToken = [AFOAuth1Token retrieveCredentialWithIdentifier:MDLOAuthTokenKeychainIdentifier];
+    }
+    
+    [super setAccessToken:accessToken];
+    
+    return accessToken;
+}
+
+#warning TODO - use this method for logout
+- (BOOL)forgetAccessToken
+{
+   return [AFOAuth1Token deleteCredentialWithIdentifier:MDLOAuthTokenKeychainIdentifier];
+}
+
+- (void)setAccessToken:(AFOAuth1Token *)accessToken
+{
+    [super setAccessToken:accessToken];
+    
+    [AFOAuth1Token storeCredential:accessToken withIdentifier:MDLOAuthTokenKeychainIdentifier];
 }
 
 + (void)resetSharedClient

@@ -186,6 +186,8 @@ extern NSString * const MDLNotificationRateLimitExceeded;
                             success:(void (^)(AFHTTPRequestOperation *operation, NSString *fileHash, id responseObject))success
                             failure:(void (^)(NSError *))failure;
 
+- (BOOL)forgetAccessToken;
+
 @end
 
 @interface NSNumber (NiceNumber)
